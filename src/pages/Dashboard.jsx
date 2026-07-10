@@ -1,95 +1,40 @@
-import { Link } from "react-router-dom";
+import URLForm from "../components/URLForm";
+import URLList from "../components/URLList";
 
 function Dashboard() {
-  return (
-    <div className="min-h-screen bg-gray-100">
 
-      {/* Navbar */}
+    return(
 
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="min-h-screen bg-slate-100">
 
-          <h1 className="text-2xl font-bold text-blue-600">
-            URL Shortener
-          </h1>
+            <div className="max-w-6xl mx-auto py-10">
 
-          <div className="flex gap-6">
+                <h1 className="text-4xl font-bold">
 
-            <Link
-              to="/analytics"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Analytics
-            </Link>
+                    Dashboard
 
-            <Link
-              to="/profile"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Profile
-            </Link>
+                </h1>
 
-          </div>
+                <p className="text-gray-500 mt-2">
 
-        </div>
-      </nav>
+                    Manage your shortened URLs
 
-      {/* Main */}
+                </p>
 
-      <div className="max-w-6xl mx-auto p-10">
+                <div className="mt-8">
 
-        <h2 className="text-4xl font-bold">
-          Dashboard
-        </h2>
+                    <URLForm/>
 
-        <p className="text-gray-600 mt-2">
-          Welcome to your URL Shortener Dashboard.
-        </p>
+                </div>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <URLList/>
 
-          <div className="bg-white rounded-xl shadow p-6">
-
-            <h3 className="text-gray-500">
-              Total URLs
-            </h3>
-
-            <p className="text-4xl font-bold mt-3">
-              0
-            </p>
-
-          </div>
-
-          <div className="bg-white rounded-xl shadow p-6">
-
-            <h3 className="text-gray-500">
-              Total Clicks
-            </h3>
-
-            <p className="text-4xl font-bold mt-3">
-              0
-            </p>
-
-          </div>
-
-          <div className="bg-white rounded-xl shadow p-6">
-
-            <h3 className="text-gray-500">
-              Active Links
-            </h3>
-
-            <p className="text-4xl font-bold mt-3">
-              0
-            </p>
-
-          </div>
+            </div>
 
         </div>
 
-      </div>
+    )
 
-    </div>
-  );
 }
 
 export default Dashboard;
