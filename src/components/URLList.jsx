@@ -1,110 +1,158 @@
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
+import { getURLs, deleteURL } from "../services/url";
+
 function URLList() {
+  const [urls, setUrls] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const urls = [
+  useEffect(() => {
+    let ignore = false;
 
-        {
+    async function loadURLs() {
+      try {
+        setLoading(true);
 
-            short:"Abc123",
+        const response = await getURLs();
 
-            original:"https://google.com",
+        if (ignore) return;
 
-            clicks:12
-
-        },
-
-        {
-
-            short:"XYZ456",
-
-            original:"https://github.com",
-
-            clicks:4
-
+        if (Array.isArray(response)) {
+          setUrls(response);
+        } else {
+          setUrls(response.urls || []);
         }
+      } catch (error) {
+        console.error(error);
 
-    ];
+        if (!ignore) {
+          toast.error("Failed to load URLs");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
 
-    return(
+    loadURLs();
 
-        <div className="bg-white rounded-xl shadow p-8 mt-8">
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
-            <h2 className="text-2xl font-bold mb-5">
+  async function refreshURLs() {
+    try {
+      setLoading(true);
 
-                Recent URLs
+      const response = await getURLs();
 
-            </h2>
+      if (Array.isArray(response)) {
+        setUrls(response);
+      } else {
+        setUrls(response.urls || []);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to refresh URLs");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-            <table className="w-full">
+  async function handleDelete(id) {
+    try {
+      await deleteURL(id);
 
-                <thead>
+      toast.success("URL deleted successfully");
 
-                    <tr className="border-b">
+      await refreshURLs();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete URL");
+    }
+  }
 
-                        <th className="text-left py-3">
+  function copyURL(shortCode) {
+    const shortURL = `http://localhost:8081/${shortCode}`;
 
-                            Short URL
+    navigator.clipboard.writeText(shortURL);
 
-                        </th>
+    toast.success("Copied to clipboard");
+  }
 
-                        <th>
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-8 mt-8">
+        <p className="text-center text-gray-500">
+          Loading URLs...
+        </p>
+      </div>
+    );
+  }
 
-                            Original URL
+  return (
+    <div className="bg-white rounded-xl shadow-lg p-8 mt-8">
+      <h2 className="text-2xl font-bold mb-6">
+        Recent URLs
+      </h2>
 
-                        </th>
+      {urls.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No URLs Found
+        </p>
+      ) : (
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-3">Short URL</th>
+              <th className="text-left py-3">Original URL</th>
+              <th className="text-center py-3">Clicks</th>
+              <th className="text-center py-3">Actions</th>
+            </tr>
+          </thead>
 
-                        <th>
+          <tbody>
+            {urls.map((url) => (
+              <tr key={url.id} className="border-b hover:bg-gray-50">
+                <td className="py-4 text-blue-600 font-medium">
+                  {url.short_code}
+                </td>
 
-                            Clicks
+                <td className="py-4 max-w-sm truncate">
+                  {url.original_url}
+                </td>
 
-                        </th>
+                <td className="text-center">
+                  {url.click_count}
+                </td>
 
-                    </tr>
+                <td className="py-4 flex justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyURL(url.short_code)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+                  >
+                    Copy
+                  </button>
 
-                </thead>
-
-                <tbody>
-
-                    {
-
-                        urls.map((url,index)=>(
-
-                            <tr
-                                key={index}
-                                className="border-b"
-                            >
-
-                                <td className="py-3">
-
-                                    {url.short}
-
-                                </td>
-
-                                <td>
-
-                                    {url.original}
-
-                                </td>
-
-                                <td>
-
-                                    {url.clicks}
-
-                                </td>
-
-                            </tr>
-
-                        ))
-
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    )
-
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(url.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
 }
 
 export default URLList;
